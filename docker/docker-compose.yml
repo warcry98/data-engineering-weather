@@ -1,0 +1,59 @@
+services:
+
+  timescaledb:
+    image: timescale/timescaledb:latest-pg15
+    container_name: timescaledb
+    restart: always
+    environment:
+      POSTGRES_USER: kestra
+      POSTGRES_PASSWORD: kestra
+      POSTGRES_DB: analytics
+    ports:
+      - "5432:5432"
+    volumes:
+      - timescale_data:/var/lib/postgresql/data
+
+  kestra:
+    image: kestra/kestra:latest
+    container_name: kestra
+    restart: always
+    command: server standalone
+    depends_on:
+      - timescaledb
+    ports:
+      - "8080:8080"
+    volumes:
+      - ./kestra:/app/storage
+    environment:
+      KESTRA_CONFIGURATION: |
+        datasources:
+          postgres:
+            url: jdbc:postgresql://timescaledb:5432/analytics
+            driverClassName: org.postgresql.Driver
+            username: kestra
+            password: kestra
+
+        kestra:
+          repository:
+            type: postgres
+          queue:
+            type: postgres
+          storage:
+            type: local
+            local:
+              basePath: "/app/storage"
+
+  metabase:
+    image: metabase/metabase:latest
+    container_name: metabase
+    restart: always
+    depends_on:
+      - timescaledb
+    ports:
+      - "3000:3000"
+    volumes:
+      - metabase_data:/metabase-data
+
+volumes:
+  timescale_data:
+  metabase_data:
