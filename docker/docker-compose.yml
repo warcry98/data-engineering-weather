@@ -57,9 +57,26 @@ services:
     command: server worker
     environment:
       KESTRA_CONFIGURATION: |
+        datasources:
+          postgres:
+            url: jdbc:postgresql://timescaledb:5432/analytics
+            driverClassName: org.postgresql.Driver
+            username: kestra
+            password: kestra
+
         kestra:
+          repository:
+            type: postgres
+          queue:
+            type: postgres
+          storage:
+            type: local
+            local:
+              basePath: "/app/storage"
           server:
             url: http://kestra:8080
+
+            
     volumes:
       - ../ingestion:/app/ingestion
       - ../bruin:/app/bruin
