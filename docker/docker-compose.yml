@@ -42,6 +42,29 @@ services:
             type: local
             local:
               basePath: "/app/storage"
+          server:
+            basic-auth:
+              enabled: true
+              username: admin
+              password: admin123
+
+  kestra-worker:
+    build:
+      context: .
+      dockerfile: ./kestra-worker/Dockerfile
+    image: weather-kestra-worker
+    container_name: kestra-worker
+    command: worker
+    environment:
+      KESTRA_CONFIGURATION: |
+        kestra:
+          server:
+            url: http://kestra:8080
+    volumes:
+      - ../ingestion:/app/ingestion
+      - ../bruin:/app/bruin
+    depends_on:
+      - kestra
 
   metabase:
     image: metabase/metabase:latest
@@ -53,6 +76,14 @@ services:
       - "3000:3000"
     volumes:
       - metabase_data:/metabase-data
+    environment:
+      MB_SIGNUP_ENABLED: false
+      MD_DB_TYPE: postgres
+      MD_DB_DBNAME: analytics
+      MD_DB_PORT: 5432
+      MD_DB_USER: kestra
+      MD_DB_PASS: kestra
+      MD_DB_HOST: timescaledb
 
 volumes:
   timescale_data:
