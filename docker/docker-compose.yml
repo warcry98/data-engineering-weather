@@ -45,7 +45,7 @@ services:
           server:
             basic-auth:
               enabled: true
-              username: admin
+              username: admin@local.com
               password: admin123
 
   kestra-worker:
@@ -83,25 +83,37 @@ services:
     depends_on:
       - kestra
 
+  metabase-db:
+    image: postgres:15
+    container_name: metabase-db
+    restart: always
+    environment:
+      POSTGRES_USER: kestra
+      POSTGRES_PASSWORD: kestra
+      POSTGRES_DB: metabase
+    volumes:
+      - metabase_db-data:/var/lib/postgresql/data
+
   metabase:
     image: metabase/metabase:latest
     container_name: metabase
     restart: always
     depends_on:
-      - timescaledb
+      - metabase-db
     ports:
       - "3000:3000"
     volumes:
       - metabase_data:/metabase-data
     environment:
       MB_SIGNUP_ENABLED: false
-      MD_DB_TYPE: postgres
-      MD_DB_DBNAME: analytics
-      MD_DB_PORT: 5432
-      MD_DB_USER: kestra
-      MD_DB_PASS: kestra
-      MD_DB_HOST: timescaledb
+      MB_DB_TYPE: postgres
+      MB_DB_DBNAME: metabase
+      MB_DB_PORT: 5432
+      MB_DB_USER: kestra
+      MB_DB_PASS: kestra
+      MB_DB_HOST: metabase-db
 
 volumes:
   timescale_data:
   metabase_data:
+  metabase_db-data:
