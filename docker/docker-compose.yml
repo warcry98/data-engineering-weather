@@ -43,11 +43,9 @@ services:
             local:
               basePath: "/app/storage"
           server:
-            security:
-              basic-auth:
-                enabled: true
-                username: admin@local.com
-                password: admin123
+            basic-auth:
+              username: admin@local.com
+              password: Admin1234
 
   kestra-worker:
     build:
