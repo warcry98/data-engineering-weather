@@ -54,7 +54,7 @@ services:
       dockerfile: ./kestra-worker/Dockerfile
     image: weather-kestra-worker
     container_name: kestra-worker
-    command: worker
+    command: kestra worker
     environment:
       KESTRA_CONFIGURATION: |
         kestra:
