@@ -90,6 +90,8 @@ services:
       POSTGRES_USER: kestra
       POSTGRES_PASSWORD: kestra
       POSTGRES_DB: metabase
+    ports:
+      - 5433:5432
     volumes:
       - metabase_db-data:/var/lib/postgresql/data
 
